@@ -29,7 +29,7 @@ function Patients() {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [formData, setFormData] = useState({});
     const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-    console.log("KEY:", import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+    
 
     
   
