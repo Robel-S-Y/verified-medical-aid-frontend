@@ -1,14 +1,23 @@
 import { useEffect,useState } from 'react';
 import { useLocation } from "react-router-dom";
 import Cookies from 'js-cookie';
+import {  CardElement, useElements } from "@stripe/react-stripe-js";
+import { useStripe } from '@stripe/react-stripe-js';
 
 
 export default function AddModal({ isOpen, onClose, onSubmit, formData, setFormData }) {
-  const location = useLocation();
-  const locationname = location.pathname.replace("/", "").toLowerCase();
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [message, setMessage] = useState(null);
-    const [uploading, setUploading] = useState(false);
+const location = useLocation();
+const locationname = location.pathname.replace("/", "").toLowerCase();
+const [selectedFile, setSelectedFile] = useState(null);
+const [message, setMessage] = useState(null);
+const [uploading, setUploading] = useState(false);
+const isUser = locationname === "users";
+const isPatients = locationname === "my-patients";
+const ismakeDonation = locationname === "patients";
+const elements = useElements();
+const stripe = useStripe();
+
+
   
   async function handleUploadFile() {
     if (!selectedFile) return;
@@ -69,9 +78,7 @@ export default function AddModal({ isOpen, onClose, onSubmit, formData, setFormD
   if (!isOpen) return null;
 
 
-  const isUser = locationname === "users";
-  const isPatients = locationname === "my-patients";
-  const ismakeDonation = locationname === "patients";
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -110,7 +117,13 @@ export default function AddModal({ isOpen, onClose, onSubmit, formData, setFormD
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            onSubmit(e);
+
+            if (ismakeDonation) {
+              const card = elements.getElement(CardElement);
+              onSubmit(stripe, e, card);
+            } else {
+              onSubmit(e);
+            }
           }}
         >
 
@@ -327,6 +340,13 @@ export default function AddModal({ isOpen, onClose, onSubmit, formData, setFormD
               </div>
 
               <div className="grid gap-2">
+              <label className="text-sm font-medium w-fit">Card Information</label>
+              <div className="border rounded-md p-3">
+              <CardElement options={{ hidePostalCode: true }} />
+              </div>
+              </div>
+
+              <div className="grid gap-2">
               <label htmlFor="isAnonymous" className="text-sm font-medium w-fit">
               Anonymous
               </label>
@@ -342,6 +362,7 @@ export default function AddModal({ isOpen, onClose, onSubmit, formData, setFormD
 
             </div>
           )}
+{/**************************************/}          
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
             <button
               type="button"

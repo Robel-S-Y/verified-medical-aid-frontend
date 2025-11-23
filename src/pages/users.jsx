@@ -5,10 +5,13 @@ import EditModal from "../components/EditModal";
 import ViewModal from "../components/ViewModal";
 import AddModal from '../components/AddModal';
 import { useUserStore } from "../store/userStore";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js"
 
 
 function Users() {
     const userStore = useUserStore((state) => state);
+    const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [showViewModal, setShowViewModal] = useState(false);
@@ -292,27 +295,31 @@ const handleCreate = async (e) => {
                                           postTitle={ deleteUser || ''}
                                         />
 
-                                          <EditModal
-                                              isOpen={isEditOpen}
-                                              onClose={() => setIsEditOpen(false)}
-                                              onSubmit={handleEdit}
-                                              formData={editFormData}
-                                              setFormData={setEditFormData}
-                                            />
+                                        <Elements stripe={stripePromise}>
+                                        <EditModal
+                                          isOpen={isEditOpen}
+                                          onClose={() => setIsEditOpen(false)}
+                                          onSubmit={handleEdit}
+                                          formData={editFormData}
+                                          setFormData={setEditFormData}
+                                        />
+                                        </Elements>
                                           <ViewModal
                                             isOpen={showViewModal}
                                             onClose={() => setShowViewModal(false)}
                                             viewData={viewData}
                                           />
                                           
-                                              <AddModal
-                                                  isOpen={isAddModalOpen}
-                                                  onClose={() => setIsAddModalOpen(false)}
-                                                  onSubmit={handleCreate}
-                                                  formData={formData}
-                                                  setFormData={setFormData}
-                                                  setError={setError}
-                                                />
+                                              <Elements stripe={stripePromise}>
+                                                <AddModal
+                                              isOpen={isAddModalOpen}
+                                              onClose={() => setIsAddModalOpen(false)}
+                                              onSubmit={handleCreate}
+                                              formData={formData}
+                                              setFormData={setFormData}
+                                              setError={setError}
+                                                    />
+                                              </Elements>
                                         
                                         </div>
   );

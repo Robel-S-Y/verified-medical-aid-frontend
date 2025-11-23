@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useHospitalStore } from '../store/hospitalStore';
 import DeleteModal from '../components/DeleteModal';
 import EditModal from "../components/EditModal";
-
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js"
 
 function Myhospital() {
 const id  = localStorage.getItem('hospital_id');
@@ -18,6 +19,7 @@ const [editFormData, setEditFormData] = useState();
 const [showSuccess, setShowSuccess] = useState(false);
 const [ShowError, setShowError] = useState(false);
 const [message,setMessage]=useState('');
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 useEffect(() => {
 if (!id) return;
@@ -229,15 +231,16 @@ className="bg-white shadow-md inline-flex items-center justify-center gap-2 whit
                               }}
                               postTitle={ deleteHospital || ''}
                             />
-
-                            <EditModal
+                             <Elements stripe={stripePromise}>
+                              <EditModal
                               isOpen={isEditOpen}
                               onClose={() => setIsEditOpen(false)}
                               onSubmit={handleEdit}
                               formData={editFormData}
                               setFormData={setEditFormData}
                               setError={setError}
-                            />
+                                  />
+                            </Elements>
 
 </div>
 );

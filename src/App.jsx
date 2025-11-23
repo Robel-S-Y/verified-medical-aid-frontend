@@ -1,4 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useEffect } from "react";
+import Cookies from "js-cookie";
+import api from './utils/api';
 import AppLayout from './components/AppLayout';
 import Login from './pages/Login';
 import Dashboard from './pages/dashboard';
@@ -77,6 +80,53 @@ function ProtectedRoutes() {
 }
 
 function App() {
+    useEffect(() => {
+    let inactivityTimer;
+    let refreshInterval;
+
+    const logout = () => {
+      Cookies.remove("access_token");
+      window.location.href = "/login";
+    };
+
+    const refreshToken = async () => {
+      try {
+        await api.post("/users/refresh", {}, { withCredentials: true });
+      } catch (e) {
+        logout();
+        console.error(e);
+      }
+    };
+
+    const resetTimer = () => {
+      clearTimeout(inactivityTimer);
+
+      // Inactivity logout after 30 minutes
+      inactivityTimer = setTimeout(logout, 30 * 60 * 1000);
+    };
+
+    refreshInterval = setInterval(() => {
+      if (Cookies.get("access_token")) {
+        refreshToken();
+      }
+    }, 25 * 60 * 1000);
+
+    window.addEventListener("mousemove", resetTimer);
+    window.addEventListener("keydown", resetTimer);
+    window.addEventListener("click", resetTimer);
+    window.addEventListener("scroll", resetTimer);
+
+    resetTimer();
+
+    return () => {
+      clearInterval(refreshInterval);
+      window.removeEventListener("mousemove", resetTimer);
+      window.removeEventListener("keydown", resetTimer);
+      window.removeEventListener("click", resetTimer);
+      window.removeEventListener("scroll", resetTimer);
+    };
+  }, []);
+
   return (
     <Router>
       <Routes>

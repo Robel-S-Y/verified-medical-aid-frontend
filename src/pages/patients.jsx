@@ -4,6 +4,10 @@ import { useDonationStore } from "../store/donationsStore";
 import DeleteModal from "../components/DeleteModal";
 import EditModal from "../components/EditModal";
 import AddModal from "../components/AddModal";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+
+
 
 
 function Patients() {
@@ -24,6 +28,8 @@ function Patients() {
     const userrole= localStorage.getItem('role')
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [formData, setFormData] = useState({});
+    const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+    
   
    const isAdmin=()=>{
       return userrole==='admin'
@@ -97,36 +103,47 @@ setShowError(false)
 }, 2000);
 }}
 
-const handleMakeDonation = async (e) => {
+const handleMakeDonation = async (stripe, e, card) => {
   e.preventDefault();
   setError("");
-  const donation = await donationStore.makeDonation({
-    id:id,
-    isAnonymous:formData.isAnonymous,
-    amount:formData.amount
-  });
 
-  if (donation?.success) {
-    setIsAddModalOpen(false);
-    setRefreshTrigger(prev => prev + 1);
-      setShowSuccess(true)
-    setMessage(`Success! Donation started and proceeding to payment.`)
-    setTimeout(() => {
-      setShowSuccess(false)
-    }, 2000);
-    }
-      else
-    {
-      setError(donationStore.error)
+  try {
+    const donation = await donationStore.makeDonation({
+      id: id,
+      isAnonymous: formData.isAnonymous,
+      amount: formData.amount
+    });
+
+    if (!donation?.success) {
+      setError(donationStore.error);
       setIsAddModalOpen(false);
-      setTimeout(() => {
-      setShowError(true)
-    }, 200);
-     setTimeout(() => {
-      setShowError(false)
-    }, 2200);
+      setTimeout(() => setShowError(true), 200);
+      setTimeout(() => setShowError(false), 2200);
+      return;
     }
+    const paymentResult = await donationStore.makePayment(stripe,donation.clientSecret, card);
+
+    if (paymentResult.success) {
+      setIsAddModalOpen(false);
+      setRefreshTrigger(prev => prev + 1);
+      setShowSuccess(true);
+      setMessage(`Success! Donation made and payment succeeded.`);
+      setTimeout(() => setShowSuccess(false), 2000);
+    } else {
+      setError(donationStore.error || "Payment failed");
+      setIsAddModalOpen(false);
+      setTimeout(() => setShowError(true), 200);
+      setTimeout(() => setShowError(false), 2200);
+    }
+  } catch (err) {
+    console.error(err);
+    setError("An unexpected error occurred");
+    setIsAddModalOpen(false);
+    setTimeout(() => setShowError(true), 200);
+    setTimeout(() => setShowError(false), 2200);
+  }
 };
+
 
 
 if (patientStore.loading) {
@@ -354,7 +371,7 @@ const filteredPatients =patientStore.patients.filter(patient => {
                                       2 0 0 1 .506-.852z"></path></svg></button>
                                       
                                       <button 
-                                      onClick={() => {setShowDeleteModal(true); setId(patient.id);setDeletePatient(patient.name)}}
+                                      onClick={() => {setShowDeleteModal(true); setId(patient.id);setDeletePatient(patient.full_name)}}
                                       class=" border-gray-200 hover:bg-gray-200 cursor-pointer inline-flex items-center justify-center 
                                       gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none 
                                       focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none 
@@ -392,23 +409,27 @@ const filteredPatients =patientStore.patients.filter(patient => {
                               postTitle={ deletePatient || ''}
                             />
 
-                            <EditModal
+                            <Elements stripe={stripePromise}>
+                              <EditModal
                               isOpen={isEditOpen}
                               onClose={() => setIsEditOpen(false)}
                               onSubmit={handleEdit}
                               formData={editFormData}
                               setFormData={setEditFormData}
                               setError={setError}
-                            />
-
-                            <AddModal
-                                isOpen={isAddModalOpen}
-                                onClose={() => setIsAddModalOpen(false)}
-                                onSubmit={handleMakeDonation}
-                                formData={formData}
-                                setFormData={setFormData}
-                                setError={setError}
-                              />
+                                  />
+                            </Elements>
+                            <Elements stripe={stripePromise}>
+                              <AddModal
+                                    isOpen={isAddModalOpen}
+                                    onClose={() => setIsAddModalOpen(false)}
+                                    onSubmit={handleMakeDonation}
+                                    formData={formData}
+                                    setFormData={setFormData}
+                                    setError={setError}
+                                  />
+                            </Elements>
+  
 
                                  </div>
                                  

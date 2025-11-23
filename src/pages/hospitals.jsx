@@ -2,6 +2,8 @@ import { useState,useEffect } from "react";
 import { useHospitalStore } from "../store/hospitalStore";
 import DeleteModal from "../components/DeleteModal";
 import EditModal from "../components/EditModal";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js"
 
 
 function Hospitals() {
@@ -16,7 +18,8 @@ function Hospitals() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteHospital,setDeleteHospital]=useState('');
     const [isEditOpen, setIsEditOpen] = useState(false);
-    const [editFormData, setEditFormData] = useState();
+    const [editFormData, setEditFormData] = useState();    
+    const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 
   const search=searchQuery.toLowerCase();
@@ -257,14 +260,16 @@ const filteredHospitals = hospitalStore.hospitals.filter(hospital => {
                               postTitle={ deleteHospital || ''}
                             />
 
-                            <EditModal
+                              <Elements stripe={stripePromise}>
+                              <EditModal
                               isOpen={isEditOpen}
                               onClose={() => setIsEditOpen(false)}
                               onSubmit={handleEdit}
                               formData={editFormData}
                               setFormData={setEditFormData}
                               setError={setError}
-                            />
+                              />
+                              </Elements>
 
                                  </div>
                                  

@@ -1,6 +1,9 @@
 import { useState,useEffect } from "react";
 import { useDonationStore } from "../store/donationsStore";
-
+import DeleteModal from "../components/DeleteModal";
+import EditModal from "../components/EditModal";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 
 function Mydonations() {
     const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -11,6 +14,10 @@ function Mydonations() {
     const [ShowError, setShowError] = useState(false);
     const [message,setMessage]=useState('');
     const [error, setError] = useState('');
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deletePatient,setDeletePatient]=useState('');
+    const [isEditOpen, setIsEditOpen] = useState(false);  
+    const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 
   const search=searchQuery.toLowerCase();
@@ -19,12 +26,49 @@ function Mydonations() {
         donationStore.getDonations();
       },[refreshTrigger]);
 
-const handleRetry = async () => {
+const handleRetryDonation = async (stripe, card, id) => {
+  setError("");
+
+  try {
+    const donation = await donationStore.retryDonation(id);
+    if (!donation?.success) {
+      setError(donationStore.error);
+      setIsEditOpen(false);
+      setTimeout(() => setShowError(true), 200);
+      setTimeout(() => setShowError(false), 2200);
+      return;
+    }
+    console.log('donation.clientSecret',donation.clientSecret)
+    const paymentResult = await donationStore.makePayment(stripe, donation.clientSecret, card);
+    
+    if (paymentResult.success) {
+      setIsEditOpen(false);
+      setRefreshTrigger(prev => prev + 1);
+      setShowSuccess(true);
+      setMessage(`Success! Donation made and payment succeeded.`);
+      setTimeout(() => setShowSuccess(false), 2000);
+    } else {
+      setError(donationStore.error || "Payment failed");
+      setIsEditOpen(false);
+      setTimeout(() => setShowError(true), 200);
+      setTimeout(() => setShowError(false), 2200);
+    }
+  } catch (err) {
+    console.error(err);
+    setError("An unexpected error occurred");
+    setIsEditOpen(false);
+    setTimeout(() => setShowError(true), 200);
+    setTimeout(() => setShowError(false), 2200);
+  }
+};
+
+const handleDelete = async () => {
 setError("");
-const donation = await donationStore.retryDonation(id);
-if(donation?.success){
+const cancelation = await donationStore.cancelDonation(id);
+if(cancelation?.success){
+setShowDeleteModal(false);
 setRefreshTrigger(prev => prev + 1);
-setMessage(`Success! Retrying Donation.`)
+setMessage(`Success! donation got canceled successfully`)
 setShowSuccess(true)
 setTimeout(() => {
 setShowSuccess(false)
@@ -33,6 +77,7 @@ setShowSuccess(false)
 {
 setError(donationStore.error)
 setShowError(true)
+setShowDeleteModal(false);
 setTimeout(() => {
 setShowError(false)
 }, 2000);
@@ -126,7 +171,7 @@ const filteredDonations =myDonations.filter(donation => {
                           <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold 
                         transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 
                         border-transparent bg-primary text-primary-foreground hover:bg-primary/80   bg-orange-600 text-white hover:opacity-80">
-                          Pending</div>
+                          Failed</div>
                           )
                           :
                           (<div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold 
@@ -166,25 +211,55 @@ const filteredDonations =myDonations.filter(donation => {
 
 
                               </div>
-                              <div className="flex justify-end">
+                              <div className="flex justify-between">
        
-                                    <div className="flex justify-end space-x-2 ">
+                                    
 
-                                  { donation.payment_status === "Pending" &&(<button 
+                                  { donation.payment_status === "Pending" &&(
+                                    <>
+                                    <button 
                                 onClick={() => {
                                               setId(donation.id);
-                                              handleRetry();
+                                              setShowDeleteModal(true);
+                                              setDeletePatient(donation.patient.full_name)
+                                            }}
+                                className="mt-3 inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium 
+                                ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 
+                                focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50
+                                 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary text-primary-foreground 
+                                 hover:bg-primary/90 h-9 rounded-md px-3 bg-black text-white hover:opacity-80 cursor-pointer">cancel</button>
+                                 <div className="flex justify-end space-x-2 ">
+                            {/*        <button 
+                                onClick={() => {
+                                              setIsEditOpen(true)
+                                              setId(donation.id);
                                             }}
                                 className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium 
                                 ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 
                                 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50
                                  [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary text-primary-foreground 
-                                 hover:bg-primary/90 h-9 rounded-md px-3 bg-black text-white hover:opacity-80 cursor-pointer">Retry</button>  )}
+                                 hover:bg-primary/90 h-9 rounded-md px-3 bg-black text-white hover:opacity-80 cursor-pointer">Retry</button>*/}</div>  </> )}
                                   </div>
                                  </div>
-                                 </div></div>
+                                 </div>
                                  ))}
                                  </div>
+
+                             <DeleteModal
+                              isOpen={showDeleteModal}
+                              onClose={() => setShowDeleteModal(false)}
+                              onConfirm={handleDelete}
+                              postTitle={ deletePatient+' donation' || ''}
+                            />
+                            <Elements stripe={stripePromise}>
+                              <EditModal
+                                    isOpen={isEditOpen}
+                                    onClose={() => setIsEditOpen(false)}
+                                    onSubmit={handleRetryDonation}
+                                    id={id}
+                                    setError={setError}
+                                  />
+                            </Elements>
                                  
                                  </div>
                                  

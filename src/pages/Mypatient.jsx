@@ -3,6 +3,8 @@ import { usePatientStore } from "../store/patientsStore";
 import DeleteModal from "../components/DeleteModal";
 import EditModal from "../components/EditModal";
 import AddModal from "../components/AddModal";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js"
 
 function Mypatients() {
     const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -19,6 +21,7 @@ function Mypatients() {
     const [editFormData, setEditFormData] = useState();    
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [formData, setFormData] = useState({});
+    const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
   const search=searchQuery.toLowerCase();
 
@@ -325,23 +328,29 @@ const filteredPatients =myPatients.filter(patient => {
                               postTitle={ deletePatient || ''}
                             />
 
-                            <EditModal
+
+                          <Elements stripe={stripePromise}>
+                              <EditModal
                               isOpen={isEditOpen}
                               onClose={() => setIsEditOpen(false)}
                               onSubmit={handleEdit}
                               formData={editFormData}
                               setFormData={setEditFormData}
                               setError={setError}
-                            />
+                                  />
+                            </Elements>
 
+
+                            <Elements stripe={stripePromise}>
                             <AddModal
-                                isOpen={isAddModalOpen}
-                                onClose={() => setIsAddModalOpen(false)}
-                                onSubmit={handleCreate}
-                                formData={formData}
-                                setFormData={setFormData}
-                                setError={setError}
-                              />
+                            isOpen={isAddModalOpen}
+                            onClose={() => setIsAddModalOpen(false)}
+                            onSubmit={handleCreate}
+                            formData={formData}
+                            setFormData={setFormData}
+                            setError={setError}
+                            />
+                            </Elements>
 
                                  </div>
                                  

@@ -153,7 +153,10 @@ const recentDonations = paidDonations.sort((a, b) => new Date(b.created_at) - ne
                   <div className="rounded-lg  bg-white  shadow-sm border-gray-200 border">
                     <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2 ">
                       <div className="tracking-tight  text-sm font-medium">Total Hospitals</div>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-users h-4 w-4 text-muted-foreground"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 7V17M7 12H17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
                       </div>
                       <div className="p-6 pt-0">
                         <div className="text-2xl font-bold w-fit">{verifiedHospitals.length}</div>
@@ -167,14 +170,18 @@ const recentDonations = paidDonations.sort((a, b) => new Date(b.created_at) - ne
                               </div>
                               <div className="p-6 pt-0">
                                 <div className="text-2xl font-bold w-fit">{paidDonations.length}</div>
+                                <p className="text-xs text-gray-700 w-fit">All completed Donations.</p>
                               </div></div>
                               <div className="rounded-lg border-gray-200 border bg-white  shadow-sm">
                                 <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
                                   <div className="tracking-tight text-sm font-medium">Treated patiens</div>
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-triangle-alert h-4 w-4 text-red-500"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
+                                  {treatedPatients.length === 0 &&(<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-triangle-alert h-4 w-4 text-red-500"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>)}
                                 </div>
                                   <div className="p-6 pt-0">
-                                    <div className="text-2xl font-bold text-red-600 w-fit">{treatedPatients.length}</div>
+                                    {treatedPatients.length === 0 ?(<div className="text-2xl font-bold text-red-600 w-fit">{treatedPatients.length}</div>
+                                    ):(
+                                    <div className="text-2xl font-bold text-green-600 w-fit">{treatedPatients.length}</div>)}
+                                    <p className="text-xs text-gray-700 w-fit">All treated Donations.</p>
                                   </div>
                               </div>
                 </div>
@@ -193,8 +200,10 @@ const recentDonations = paidDonations.sort((a, b) => new Date(b.created_at) - ne
                                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-arrow-left-right h-4 w-4"><path d="M8 3 4 7l4 4"></path><path d="M4 7h16"></path><path d="m16 21 4-4-4-4"></path><path d="M20 17H4"></path></svg>
                                             </div>
                                             <div className="flex-1">
-                                            <p className="text-sm font-medium  w-fit">Date: {recent.created_at}</p>
-                                            <p className="text-xs text-gray-500  w-fit">By: {recent.user.name}</p>
+                                            <p className="text-sm font-medium  w-fit">Date: {new Date(recent.updated_at).toLocaleDateString("en-GB")}</p>
+                                            {!recent.isAnonymous?(<p className="text-xs text-gray-500  w-fit">By: {recent.user.name}</p>):(
+                                            <p className="text-xs text-gray-500  w-fit">Anonymous Donor</p>)}
+                                            <p className="text-xs text-gray-500  w-fit">Amount: {recent.amount}</p>
                                             </div>
                                             </div>
                                                  )

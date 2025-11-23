@@ -1,14 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import {  CardElement, useElements } from "@stripe/react-stripe-js";
+import { useStripe } from '@stripe/react-stripe-js';
 
 
-export default function EditModal({ isOpen, onClose, onSubmit, formData, setFormData }) {
+export default function EditModal({ isOpen, onClose, onSubmit, formData, setFormData, id }) {
   const location = useLocation();
   const locationname = location.pathname.replace('/', '');
   const [selectedFile, setSelectedFile] = useState(null);
   const [message, setMessage] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const isUser = () => location.pathname === '/Users';
+  const isHospital = () => location.pathname === '/my-hospital'||location.pathname === '/hospitals';
+  const isPatient = () => location.pathname === '/my-patients'||location.pathname === '/patients';
+  const isRetryDonation = () => location.pathname === '/my-donations';
+  const elements = useElements();
+  const stripe = useStripe();
+  const [loading, setLoading] = useState(false);
 
 async function handleUploadFile() {
   if (!selectedFile) return;
@@ -49,6 +58,9 @@ async function handleUploadFile() {
   }
 }
 
+const isloading = async ()=>{
+  setLoading(true)
+}
 
     useEffect(() => {
     const handleEscape = (e) => {
@@ -68,10 +80,7 @@ async function handleUploadFile() {
 
   if (!isOpen) return null;
 
-  const isUser = () => location.pathname === '/Users'||location.pathname ===`/Users/${formData.id}`;
-  const isHospital = () => location.pathname === '/my-hospital'||location.pathname === '/hospitals';
-  const isPatient = () => location.pathname === '/my-patients'||location.pathname === '/patients';
-  
+
 
   
 
@@ -97,17 +106,26 @@ async function handleUploadFile() {
 
         <div className="mb-4 text-center sm:text-left">
           <h2 className="text-lg font-semibold leading-none tracking-tight capitalize">
-              Edit {isUser() ? 'User' :isHospital() ? 'Hospital': locationname}
+               {isUser() ? 'Edit User' :isHospital() ? 'Edit Hospital':isRetryDonation() ? 'Retry Donation': locationname}
           </h2>
+          {!isRetryDonation() && (
           <p className="text-sm text-gray-500">
             Update the {isHospital() ? 'Hospital' : `${locationname} information below`}.
-          </p>
+          </p>)}
         </div>
 
-        <form onSubmit={(e) => {
+        <form
+          onSubmit={(e) => {
             e.preventDefault();
-            onSubmit(e);
-          }}>
+
+            if (isRetryDonation()) {
+              const card = elements.getElement(CardElement);
+              onSubmit(stripe, card, id);
+            } else {
+              onSubmit(e);
+            }
+          }}
+        >
 
 
 {/*this is user edit*/}
@@ -352,6 +370,22 @@ async function handleUploadFile() {
             </div>
           )}
 {/*.................*/}
+{/*this is retry donation*/}
+          {isRetryDonation() && (
+            <div className="grid gap-4 py-4">     
+              <div className="grid gap-2">
+              <div className="grid gap-2">
+              <label className="text-sm font-medium w-fit">Card Information</label>
+              <div className="border rounded-md p-3">
+              <CardElement options={{ hidePostalCode: true }} />
+              </div>
+              </div>
+              </div>
+
+            </div>
+          )}
+{/*.................*/}
+
 
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
             <button
@@ -361,12 +395,20 @@ async function handleUploadFile() {
             >
               Cancel
             </button>
-            <button
+            {!isRetryDonation() ? (<button
               type="submit"
+              onClick={isloading}
+              disabled={loading}
               className="rounded-md bg-black cursor-pointer px-4 py-2 text-sm text-white hover:opacity-70"
             >
-              Update
-            </button>
+              {loading ? "Updating..." : "Update"}
+            </button>):(<button
+              type="submit"
+              onClick={isloading}
+              disabled={loading}
+              className="rounded-md bg-black cursor-pointer px-4 py-2 text-sm text-white hover:opacity-70"
+            >
+              {loading ? "donating..." : "donate"}</button>)}
           </div>
         </form>
       </div>
