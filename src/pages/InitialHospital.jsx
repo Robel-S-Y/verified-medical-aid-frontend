@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import { useHospitalStore } from "../store/hospitalStore";
-import { Phone } from "lucide-react";
+
 
 function InitialHospital() {
   const [formData, setFormData] = useState({});

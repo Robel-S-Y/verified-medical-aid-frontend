@@ -51,8 +51,7 @@ function ProtectedRoutes() {
   return (
     <AppLayout>
       <Routes>
-        <Route path="/dashboard" element={<Dashboard />} />        
-        <Route path="/create/hospital" element={<InitialHospital />}/>
+        <Route path="/dashboard" element={<Dashboard />} />
         {isAdmin() && (
           <>
             <Route path="/users" element={<Users />} />
@@ -91,7 +90,7 @@ function App() {
 
     const refreshToken = async () => {
       try {
-        await api.post("/users/refresh", {}, { withCredentials: true });
+        await api.post("users/refresh", {}, { withCredentials: true });
       } catch (e) {
         logout();
         console.error(e);
@@ -101,7 +100,6 @@ function App() {
     const resetTimer = () => {
       clearTimeout(inactivityTimer);
 
-      // Inactivity logout after 30 minutes
       inactivityTimer = setTimeout(logout, 30 * 60 * 1000);
     };
 
@@ -133,6 +131,7 @@ function App() {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/create/hospital" element={<InitialHospital />}/>
         <Route path="/*" element={<ProtectedRoutes />} />
       </Routes>
     </Router>
