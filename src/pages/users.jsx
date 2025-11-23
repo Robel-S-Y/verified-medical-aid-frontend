@@ -129,7 +129,7 @@ const handleCreate = async (e) => {
         userStore.getUsers();
       },[refreshTrigger]);
 
-  const filteredUsers = userStore.users.filter(user => {
+  const filteredUsers = userStore?.users?.filter(user => {
     return (
       user.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) 
@@ -181,7 +181,7 @@ const handleCreate = async (e) => {
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-                    {filteredUsers.map((user) => (
+                    {filteredUsers?.map((user) => (
                   <div class="rounded-lg border bg-white text-card-foreground shadow-sm hover:shadow-md 
                   transition-shadow border-gray-200">
                     <div class="flex flex-col space-y-1.5 p-6">
