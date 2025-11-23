@@ -1,12 +1,15 @@
 import { useState,useEffect } from "react";
 import { usePatientStore } from "../store/patientsStore";
+import { useDonationStore } from "../store/donationsStore";
 import DeleteModal from "../components/DeleteModal";
 import EditModal from "../components/EditModal";
+import AddModal from "../components/AddModal";
 
 
 function Patients() {
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const patientStore = usePatientStore((state) => state);
+    const donationStore = useDonationStore((state) => state);
     const [id,setId]=useState(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [showSuccess, setShowSuccess] = useState(false);
@@ -19,6 +22,8 @@ function Patients() {
     const [editFormData, setEditFormData] = useState();
     const [VerifyData, setVerifyData] = useState();
     const userrole= localStorage.getItem('role')
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [formData, setFormData] = useState({});
   
    const isAdmin=()=>{
       return userrole==='admin'
@@ -91,6 +96,37 @@ setTimeout(() => {
 setShowError(false)
 }, 2000);
 }}
+
+const handleMakeDonation = async (e) => {
+  e.preventDefault();
+  setError("");
+  const donation = await donationStore.makeDonation({
+    id:id,
+    isAnonymous:formData.isAnonymous,
+    amount:formData.amount
+  });
+
+  if (donation?.success) {
+    setIsAddModalOpen(false);
+    setRefreshTrigger(prev => prev + 1);
+      setShowSuccess(true)
+    setMessage(`Success! Donation started and proceeding to payment.`)
+    setTimeout(() => {
+      setShowSuccess(false)
+    }, 2000);
+    }
+      else
+    {
+      setError(donationStore.error)
+      setIsAddModalOpen(false);
+      setTimeout(() => {
+      setShowError(true)
+    }, 200);
+     setTimeout(() => {
+      setShowError(false)
+    }, 2200);
+    }
+};
 
 
 if (patientStore.loading) {
@@ -331,6 +367,7 @@ const filteredPatients =patientStore.patients.filter(patient => {
                                         <line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg></button>
                                   </>):(
                                      <button 
+                                       onClick={() => {setIsAddModalOpen(true); setId(patient.id);}}
                                       className="bg-black text-white inline-flex items-center 
                                       justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium 
                                       ring-offset-background transition-colors hover:opacity-80 hover:cursor-pointer 
@@ -342,7 +379,7 @@ const filteredPatients =patientStore.patients.filter(patient => {
                                         </svg>
                                         
                                         Make Donations</button>   
-                                  )}</div>{/*onClick={/*() => setIsAddModalOpen(true)*/}
+                                  )}</div>
                                  </div>
                                  </div></div>
                                  ))}
@@ -363,6 +400,15 @@ const filteredPatients =patientStore.patients.filter(patient => {
                               setFormData={setEditFormData}
                               setError={setError}
                             />
+
+                            <AddModal
+                                isOpen={isAddModalOpen}
+                                onClose={() => setIsAddModalOpen(false)}
+                                onSubmit={handleMakeDonation}
+                                formData={formData}
+                                setFormData={setFormData}
+                                setError={setError}
+                              />
 
                                  </div>
                                  

@@ -12,6 +12,8 @@ import Myhospital from './pages/Myhospital';
 import Hospitals from './pages/hospitals';
 import Mypatients from './pages/Mypatient';
 import Patients from './pages/patients';
+import Mydonations from './pages/Mydonation';
+import Donations from './pages/donations';
 import './App.css';
 
 function ProtectedRoutes() {
@@ -52,6 +54,7 @@ function ProtectedRoutes() {
           <>
             <Route path="/users" element={<Users />} />
             <Route path="/hospitals" element={<Hospitals />} />
+            <Route path="/donations" element={<Donations />} />
           </>
         )}
 
@@ -62,6 +65,9 @@ function ProtectedRoutes() {
 
         {(isAdmin() || isDonor()) && (
           <Route path="/patients" element={<Patients />} />
+        )}
+       { isDonor() && (
+          <Route path="/my-donations" element={<Mydonations />} />
         )}
           <Route path="*" element={<NotFound />} />
         <Route path="/profile" element={<Profile />} />

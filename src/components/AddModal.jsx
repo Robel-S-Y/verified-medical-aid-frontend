@@ -70,7 +70,8 @@ export default function AddModal({ isOpen, onClose, onSubmit, formData, setFormD
 
 
   const isUser = locationname === "users";
-  const isPatients = locationname === "patients"||"my-patients";
+  const isPatients = locationname === "my-patients";
+  const ismakeDonation = locationname === "patients";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -307,6 +308,40 @@ export default function AddModal({ isOpen, onClose, onSubmit, formData, setFormD
             </div>
           )}
 {/*.................*/}
+
+{/*******Make Donation********/}
+          {ismakeDonation && (
+            <div className="grid gap-4 py-4">
+            
+              <div className="grid gap-2">
+                <label htmlFor="amount" className="text-sm font-medium w-fit">Amount</label>
+                <input
+                  id="amount"
+                  type="number"
+                  required
+                  placeholder="Enter amount to donate"
+                  value={formData.amount}
+                  onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                  className="h-10 w-full rounded-md border px-3 py-2 text-sm border-gray-200"
+                />
+              </div>
+
+              <div className="grid gap-2">
+              <label htmlFor="isAnonymous" className="text-sm font-medium w-fit">
+              Anonymous
+              </label>
+              <input
+              id="isAnonymous"
+              type="checkbox"
+              checked={formData.isAnonymous}
+              onChange={(e) => setFormData({ ...formData, isAnonymous: e.target.checked })}
+              className="h-5 w-5 rounded border-gray-200"
+              />
+              </div>
+
+
+            </div>
+          )}
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
             <button
               type="button"
@@ -319,7 +354,7 @@ export default function AddModal({ isOpen, onClose, onSubmit, formData, setFormD
               type="submit"
               className="rounded-md bg-black px-4 py-2 text-sm text-white hover:opacity-80"
             >
-              Create {isUser ? "User" : "Patient"}
+              {isUser ? "Create User" : isPatients ? "Create Patient": "Donate"}
             </button>
           </div>
         </form>

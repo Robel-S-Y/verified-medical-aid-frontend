@@ -263,5 +263,27 @@ export const useUserStore = create ((set) => ({
             })
         }
     },
+
+        getUp: async() =>{
+        try{
+            set({loading:true,error:null})
+            const response = await api.get('/');
+            if(response.status== 200)
+                {
+                    set({users:response.data.users,error:null})
+                    setTimeout(()=>{set({loading:false}) },1000)
+                }
+            else{
+                setTimeout(()=>{set({loading:false}) },1000)
+                set({error:"Failed to Fecth users"})
+            }
+        }
+        catch(error){
+            set({
+                loading:false,
+                error:error.response?.data?.message||"An error occured during fetching users.",
+            })
+        }
+    },
 })
 )
