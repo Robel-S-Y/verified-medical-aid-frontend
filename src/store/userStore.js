@@ -21,7 +21,7 @@ export const useUserStore = create ((set) => ({
     login: async ({email,password})=>{
      
         try{            
-            set({loading:true, loginerror:null, isAuthenticated:false,user:null});
+            set({loading:false, loginerror:null, isAuthenticated:false,user:null});
             const response = await api.post('/users/login',{email,password});
              let msg=response.status
              if (msg=='200')
@@ -30,6 +30,7 @@ export const useUserStore = create ((set) => ({
                     user:response.data.user,
                     isAuthenticated:true,
                     loginerror:null,
+                    loading:true
                 })
                 setTimeout(()=>{set({loading:false}) },1000)
                 Cookies.set('access_token',response.data.access_token,{expires: 1,path:'/'});
