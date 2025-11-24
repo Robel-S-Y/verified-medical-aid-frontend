@@ -46,7 +46,7 @@ makePayment: async (stripe,clientSecret,card) => {
 
 makeDonation: async (donation) => {
   try {
-    set({ error: null });
+    set({ loading: false, error: null });
     
     const response = await api.post('/donations',{
             Patient_id:donation.id,
@@ -55,6 +55,8 @@ makeDonation: async (donation) => {
         });
 
     if (response.status === 201) {
+        set({loading: true})
+      setTimeout(() => set({ loading: false }), 1000);
       set({ error: null });
       console.log(response.data.clientSecret)
       return { success: true,clientSecret:response.data.clientSecret};
