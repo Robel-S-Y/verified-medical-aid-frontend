@@ -24,7 +24,6 @@ makePayment: async (stripe,clientSecret,card) => {
           }
         }
       });
-      console.log('store',response.paymentIntent)
     if (response.paymentIntent?.status === "succeeded") {
       setTimeout(() => set({ loading: false }), 1000);
       set({ error: null });
@@ -58,7 +57,6 @@ makeDonation: async (donation) => {
         set({loading: true})
       setTimeout(() => set({ loading: false }), 1000);
       set({ error: null });
-      console.log(response.data.clientSecret)
       return { success: true,clientSecret:response.data.clientSecret};
     } else {
       set({ error: 'Failed to make donation' });

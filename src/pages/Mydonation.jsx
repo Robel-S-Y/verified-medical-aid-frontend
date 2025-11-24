@@ -38,7 +38,6 @@ const handleRetryDonation = async (stripe, card, id) => {
       setTimeout(() => setShowError(false), 2200);
       return;
     }
-    console.log('donation.clientSecret',donation.clientSecret)
     const paymentResult = await donationStore.makePayment(stripe, donation.clientSecret, card);
     
     if (paymentResult.success) {

@@ -101,7 +101,6 @@ export const useUserStore = create ((set) => ({
             set({loading:true, error:null, isAuthenticated:false,user:null});
                 const response = await api.post('/users',{name,email,password,phone,role});
                 let msg=response.status
-                console.log('signup message: ',msg)
                 if (msg == '201')
                 {
                     set({
@@ -242,7 +241,6 @@ export const useUserStore = create ((set) => ({
         try{
             set({loading:true,error:null})
             const response = await api.delete(`/users/${id}`);
-            console.log(response.status)
             if(response.status== 200)
                 {
                     set({
