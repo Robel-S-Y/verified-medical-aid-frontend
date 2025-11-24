@@ -154,7 +154,7 @@ const filteredDonations =myDonations.filter(donation => {
 
                       
 
-                        <div className="text-sm text-muted-foreground flex items-center mt-2 w-fit text-gray-600">
+                        <div className="text-sm text-muted-foreground flex mt-2 w-fit text-gray-600">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
                           <path d="M12 7V17M7 12H17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
