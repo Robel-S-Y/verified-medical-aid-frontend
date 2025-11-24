@@ -381,7 +381,7 @@ const isloading = async ()=>{
               disabled={loading}
               className="rounded-md bg-black px-4 py-2 text-sm text-white hover:opacity-80"
             >
-              {loading? (isUser ? "Create User" : isPatients ? "Create Patient": "Donate"):(isUser ? "Creating User....." : isPatients ? "Creating Patient....": "Donating....")}
+              {!loading? (isUser ? "Create User" : isPatients ? "Create Patient": "Donate"):(isUser ? "Creating User....." : isPatients ? "Creating Patient....": "Donating....")}
             </button>
           </div>
         </form>
