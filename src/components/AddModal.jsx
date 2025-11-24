@@ -16,6 +16,10 @@ const isPatients = locationname === "my-patients";
 const ismakeDonation = locationname === "patients";
 const elements = useElements();
 const stripe = useStripe();
+const [loading, setLoading] = useState(false);
+const isloading = async ()=>{
+  setLoading(true)
+}
 
 
   
@@ -373,9 +377,11 @@ const stripe = useStripe();
             </button>
             <button
               type="submit"
+              onClick={isloading}
+              disabled={loading}
               className="rounded-md bg-black px-4 py-2 text-sm text-white hover:opacity-80"
             >
-              {isUser ? "Create User" : isPatients ? "Create Patient": "Donate"}
+              {loading? (isUser ? "Create User" : isPatients ? "Create Patient": "Donate"):(isUser ? "Creating User....." : isPatients ? "Creating Patient....": "Donating....")}
             </button>
           </div>
         </form>

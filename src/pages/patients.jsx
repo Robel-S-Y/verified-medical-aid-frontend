@@ -119,8 +119,6 @@ const handleMakeDonation = async (stripe, e, card) => {
     if (!donation?.success) {
       setError(donationStore.error);
       setIsAddModalOpen(false);
-      setTimeout(() => setShowError(true), 200);
-      setTimeout(() => setShowError(false), 2200);
       return;
     }
     const paymentResult = await donationStore.makePayment(stripe,donation.clientSecret, card);
