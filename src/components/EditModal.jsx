@@ -17,7 +17,6 @@ export default function EditModal({ isOpen, onClose, onSubmit, formData, setForm
   const isRetryDonation = () => location.pathname === '/my-donations';
   const elements = useElements();
   const stripe = useStripe();
-  const [loading, setLoading] = useState(false);
 
 async function handleUploadFile() {
   if (!selectedFile) return;
@@ -58,9 +57,6 @@ async function handleUploadFile() {
   }
 }
 
-const isloading = async ()=>{
-  setLoading(true)
-}
 
     useEffect(() => {
     const handleEscape = (e) => {
@@ -397,18 +393,14 @@ const isloading = async ()=>{
             </button>
             {!isRetryDonation() ? (<button
               type="submit"
-              onClick={isloading}
-              disabled={loading}
               className="rounded-md bg-black cursor-pointer px-4 py-2 text-sm text-white hover:opacity-70"
             >
-              {loading ? "Updating..." : "Update"}
+               Update
             </button>):(<button
               type="submit"
-              onClick={isloading}
-              disabled={loading}
               className="rounded-md bg-black cursor-pointer px-4 py-2 text-sm text-white hover:opacity-70"
             >
-              {loading ? "donating..." : "donate"}</button>)}
+              donate</button>)}
           </div>
         </form>
       </div>

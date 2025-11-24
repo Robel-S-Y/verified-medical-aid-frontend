@@ -3,10 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useUserStore } from '../store/userStore.js'
 
 function Login() {
-  const [loading, setLoading] = useState(false);
-  const isloading = async ()=>{
-  setLoading(true)
-}
   const [error,setError]=useState('');
   const [formData, setFormData] = useState({
     email: "",
@@ -156,11 +152,10 @@ return (
           
             <button
               type="submit"
-              onClick={isloading}
-              disabled={loading}
+              disabled={userStore.loading}
               className="w-full rounded-sm bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
             >
-              {loading ? "Signing in..." : "Sign in"}
+              {userStore.loading ? "Signing in..." : "Sign in"}
               
             </button>
           
@@ -178,6 +173,7 @@ return (
         </div>
         </div>
       </div>
+
 
 
     </div>
