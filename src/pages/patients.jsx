@@ -128,7 +128,7 @@ const handleMakeDonation = async (stripe, e, card) => {
       setRefreshTrigger(prev => prev + 1);
       setShowSuccess(true);
       setMessage(`Success! Donation made and payment succeeded.`);
-      setTimeout(() => setShowSuccess(false), 2000);
+      setTimeout(() => setShowSuccess(false), 20000);
     } else {
       setError(donationStore.error || "Payment failed");
       setIsAddModalOpen(false);
